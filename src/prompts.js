@@ -10,6 +10,11 @@ export async function promptUser() {
 export async function choose(ask, title, options) {
   console.log(`\n${title}`);
   options.forEach((option, index) => console.log(`${index + 1}. ${option}`));
-  const answer = Number(await ask("Choose a number: ")) - 1;
-  return options[answer] ?? null;
+  while (true) {
+    const input = (await ask("Choose a number (or q to cancel): ")).trim().toLowerCase();
+    if (input === "q") return null;
+    const answer = Number(input) - 1;
+    if (Number.isInteger(answer) && answer >= 0 && answer < options.length) return options[answer];
+    console.log("Invalid choice. Enter one of the listed numbers, or q to cancel.");
+  }
 }
