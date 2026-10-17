@@ -22,6 +22,7 @@ Each `SKILL.md` must include:
 
 - YAML metadata with `id`, `name`, `rank`, `class`, `target`, and `tags`.
 - `version` and `status` metadata.
+- `domain` metadata for runner display and filtering.
 - `author`, `created`, and `updated` metadata.
 - Optional `effort`, `estimated_tokens`, and `composes` metadata when applicable.
 - Preconditions and rejection conditions.

@@ -42,6 +42,8 @@ Every skill must include:
 
 Use lowercase kebab case for skill IDs and name skills with an action and object, such as `validate-input-boundaries`.
 
+When creating a grimoire, use a lowercase kebab case directory name based on its title and append a short domain suffix, such as `the-book-of-unbroken-grids-ui`. Update `grimoire/index.md` and every affected link when renaming one.
+
 ## Combination Spells
 
 Combination spells must:

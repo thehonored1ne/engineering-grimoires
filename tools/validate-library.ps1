@@ -22,7 +22,7 @@ function Read-FrontMatter([string]$Path) {
 }
 
 $skillFiles = Get-ChildItem -LiteralPath (Join-Path $Root 'grimoire') -Recurse -Filter 'SKILL.md' -File
-$required = @('id', 'name', 'rank', 'class', 'target', 'tags')
+$required = @('id', 'name', 'rank', 'class', 'target', 'tags', 'domain')
 
 foreach ($file in $skillFiles) {
     $meta = Read-FrontMatter $file.FullName

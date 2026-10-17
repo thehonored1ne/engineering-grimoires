@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Changed
+
+- Added domain suffixes to grimoire directory names for easier identification.
+- Updated the grimoire index and combination spell dependency graph to use the renamed directories.
+- Added domain labels and completion feedback to the interactive runner.
+
 ### Added
 
 - Added skill versioning and lifecycle status fields.

@@ -29,6 +29,14 @@ grimoire update
 4. Use combination spells for workflows that compose multiple skills.
 5. Review [the dependency graph](grimoire/dependency-graph.md) to understand composed workflows.
 
+Grimoire directories include a domain suffix so they remain recognizable when copied or installed:
+
+```text
+the-book-of-unbroken-grids-ui
+tome-of-the-boundless-schema-architecture
+the-obsidian-codex-of-shields-security
+```
+
 Each skill declares a semantic version, lifecycle status, and example invocation. See [the changelog](CHANGELOG.md) for library changes.
 
 ## Structure
@@ -42,6 +50,8 @@ grimoire/
     ├── spells/<skill>/SKILL.md
     └── combination-spells/<skill>/SKILL.md
 ```
+
+The interactive runner separates individual skills from combination spells, asks for a grimoire before listing them, and reports completed actions. Press Enter at yes/no prompts to accept the default answer.
 
 ## Contributing
 

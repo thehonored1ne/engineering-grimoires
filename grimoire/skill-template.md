@@ -4,6 +4,7 @@ name: Skill Name
 rank: Rank Level
 version: 1.0.0
 status: draft
+domain: Domain Name
 author: Contributor Name
 maintainers:
   - Maintainer Name

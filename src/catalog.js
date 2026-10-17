@@ -40,6 +40,7 @@ export async function loadCatalog(root) {
       name: meta.name,
       rank: meta.rank,
       status: meta.status,
+      domain: meta.domain,
       class: meta.class,
       author: meta.author,
       combination,
@@ -55,5 +56,6 @@ export async function loadCatalog(root) {
 export function findSkill(catalog, query) {
   const normalized = query.toLowerCase();
   return catalog.find((skill) => skill.id?.toLowerCase() === normalized)
-    ?? catalog.find((skill) => skill.name?.toLowerCase() === normalized);
+    ?? catalog.find((skill) => skill.name?.toLowerCase() === normalized)
+    ?? catalog.find((skill) => `${skill.name} (${skill.domain})`.toLowerCase() === normalized);
 }

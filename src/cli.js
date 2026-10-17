@@ -22,6 +22,14 @@ function printBanner() {
 `);
 }
 
+function printSeparator() {
+  console.log("\n" + "─".repeat(72) + "\n");
+}
+
+function printLocation(...parts) {
+  console.log(`› ${parts.join(" › ")}`);
+}
+
 async function installedSkillIds(directory) {
   const ids = [];
   let entries = [];
@@ -41,27 +49,36 @@ async function installedSkillIds(directory) {
 }
 
 function printSkill(skill) {
-  console.log(`\n${skill.name} (${skill.id})`);
+  printSeparator();
+  console.log(`\n${skillLabel(skill)} (${skill.id})`);
   console.log(`Grimoire: ${skill.grimoire}`);
   console.log(`Type: ${skill.combination ? "Combination spell" : "Skill"}`);
   console.log(`Rank: ${skill.rank} | Status: ${skill.status} | Author: ${skill.author}`);
 }
 
+function skillLabel(skill) {
+  if (!skill.domain || skill.name.endsWith(`(${skill.domain})`)) return skill.name;
+  return `${skill.name} (${skill.domain})`;
+}
+
 async function install(catalog, query, ask) {
   const skill = findSkill(catalog, query);
   if (!skill) throw new Error(`Skill not found: ${query}`);
+  printSeparator();
   printSkill(skill);
   if (skill.combination) {
-    console.log(`\nPrerequisites: ${skill.composes.join(", ") || "see skill file"}`);
+    console.log("\nPrerequisites:");
+    (skill.composes.length ? skill.composes : ["See skill file"]).forEach((id, index) => console.log(`  ${index + 1}. ${id}`));
   }
   if (ask && !["", "y", "yes"].includes((await ask("Install this skill? [Y/n] ")).trim().toLowerCase())) return;
   const targetRoot = defaultSkillDirectory(projectRoot);
-  if (skill.combination && skill.composes.length > 0 && ask) {
+  if (skill.combination && skill.composes.length > 0) {
     const dependencies = skill.composes
       .map((id) => findSkill(catalog, id));
     const missing = skill.composes.filter((id, index) => !dependencies[index]);
     if (missing.length > 0) throw new Error(`Missing prerequisites: ${missing.join(", ")}`);
-    if ((await ask("Install prerequisites too? [Y/n] ")).toLowerCase() !== "n") {
+    const installDependencies = !ask || !["n", "no"].includes((await ask("Install prerequisites too? [Y/n] ")).trim().toLowerCase());
+    if (installDependencies) {
       for (const dependency of dependencies) await installSkill(dependency, targetRoot, { overwrite: false, combination: false });
     }
   }
@@ -85,36 +102,52 @@ async function interactive(catalog) {
   try {
     printBanner();
     while (true) {
+      printSeparator();
+      printLocation("Main Menu");
       const action = await choose(ask, "What would you like to do?", [
         "Browse grimoires", "Browse individual skills", "Browse combination spells", "Install a skill", "Exit"
       ]);
       if (action === "Exit" || action === null) break;
       if (action === "Browse grimoires") {
         const grimoires = [...new Set(catalog.map((skill) => skill.grimoire))];
-        const selected = await choose(ask, "Choose a grimoire", grimoires);
+        const selected = await choose(ask, "Choose a grimoire", grimoires, { back: true });
         if (selected) {
+          printSeparator();
+          printLocation("Browse Grimoires", selected);
           const skills = catalog.filter((skill) => skill.grimoire === selected && !skill.combination);
           const combinations = catalog.filter((skill) => skill.grimoire === selected && skill.combination);
           console.log(`\n${selected}`);
-          console.log("\nIndividual skills:");
-          skills.forEach((skill, index) => console.log(`${index + 1}. ${skill.name} [${skill.id}]`));
-          console.log("\nCombination spells:");
-          combinations.forEach((skill, index) => console.log(`${index + 1}. ${skill.name} [${skill.id}]`));
+        console.log(`\nIndividual skills (${skills.length}):`);
+        skills.forEach((skill, index) => console.log(`${index + 1}. ${skillLabel(skill)}`));
+        console.log(`\nCombination spells (${combinations.length}):`);
+        combinations.forEach((skill, index) => console.log(`${index + 1}. ${skillLabel(skill)}`));
+          console.log("\nDone: grimoire contents displayed.");
+          printSeparator();
         }
       } else if (action === "Browse individual skills" || action === "Browse combination spells") {
         const combination = action === "Browse combination spells";
         const choices = [...new Set(catalog.filter((skill) => skill.combination === combination).map((skill) => skill.grimoire))];
-        const grimoire = await choose(ask, "Choose a grimoire", choices);
-        if (grimoire) catalog.filter((skill) => skill.grimoire === grimoire && skill.combination === combination).forEach(printSkill);
+        const grimoire = await choose(ask, "Choose a grimoire", choices, { back: true });
+        if (grimoire) {
+          printSeparator();
+          printLocation("Browse", combination ? "Combination Spells" : "Individual Skills", grimoire);
+          const skills = catalog.filter((skill) => skill.grimoire === grimoire && skill.combination === combination);
+          skills.forEach(printSkill);
+          console.log(`\nDone: displayed ${skills.length} ${combination ? "combination spells" : "individual skills"}.`);
+          printSeparator();
+        }
       } else if (action === "Install a skill") {
-        const type = await choose(ask, "What would you like to install?", ["Individual skill", "Combination spell"]);
+        const type = await choose(ask, "What would you like to install?", ["Individual skill", "Combination spell"], { back: true });
+        if (!type) continue;
         const combination = type === "Combination spell";
         const available = catalog.filter((skill) => skill.combination === combination);
-        const grimoire = await choose(ask, "Choose a grimoire", [...new Set(available.map((skill) => skill.grimoire))]);
-        const selected = grimoire && await choose(ask, "Choose a skill", available.filter((skill) => skill.grimoire === grimoire).map((skill) => `${skill.name} [${skill.id}]`));
-        if (selected) await install(catalog, selected.match(/\[(.+)\]$/)[1], ask);
+        const grimoire = await choose(ask, "Choose a grimoire", [...new Set(available.map((skill) => skill.grimoire))], { back: true });
+        if (!grimoire) continue;
+        const selected = await choose(ask, "Choose a skill", available.filter((skill) => skill.grimoire === grimoire).map(skillLabel), { back: true });
+        if (selected) await install(catalog, selected, ask);
       }
     }
+    console.log("\nGoodbye. Your grimoires remain ready.");
   } finally {
     reader.close();
   }
