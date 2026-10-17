@@ -12,6 +12,7 @@ pnpm-debug.log*
 # Local skill installations and runner tests
 .agents/
 .runner-test/
+testing area/
 
 # Environment and secrets
 .env
