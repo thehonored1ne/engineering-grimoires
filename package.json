@@ -1,0 +1,27 @@
+{
+  "name": "engineering-grimoires",
+  "version": "0.1.0",
+  "description": "Interactive installer and catalog for reusable engineering skills.",
+  "type": "module",
+  "bin": {
+    "grimoire": "bin/grimoire.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "grimoire",
+    "README.md",
+    "Agents.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "start": "node bin/grimoire.js",
+    "validate": "node bin/grimoire.js validate"
+  },
+  "license": "MIT"
+}
